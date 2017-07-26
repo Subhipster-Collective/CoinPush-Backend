@@ -1,5 +1,11 @@
 const admin = require('firebase-admin');
+<<<<<<< Updated upstream
 const serviceAccount = require('./coin-push-firebase-adminsdk-5s3qb-8b77683674.json');
+=======
+
+const serviceAccount = require('./coin-push-firebase-adminsdk-5s3qb-8b77683674.json');
+
+>>>>>>> Stashed changes
 admin.initializeApp({
     credential: admin.credential.cert(serviceAccount),
     databaseURL: 'https://coin-push.firebaseio.com'
