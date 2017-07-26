@@ -73,11 +73,11 @@ module.exports = {
             "allman",
             { "allowSingleLine": true }
         ],
-        "max-len": [
+        /*"max-len": [
             1,
             120,
             4
-        ],
+        ],*/
         "comma-style": 1,
         /*"comma-dangle": [
             1,
