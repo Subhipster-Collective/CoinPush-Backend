@@ -1,7 +1,7 @@
 #!/usr/bin/node
 'use strict';
 
-const UPDATE_DELAY = 30000;
+const UPDATE_DELAY = 10000;
 const CRYPTOCURRENCIES = 'ETH,BTC,LTC,DASH,XMR,NXT,ZEC,DGB,XRP,ETC';
 const NONCRYPTOCURRENCIES = 'USD,EUR,GBP,JPY,CNY,AUD,CAD,CHF';
 const URL = 'https://min-api.cryptocompare.com/data/pricemultifull?fsyms=' + CRYPTOCURRENCIES + '&tsyms=' + 
@@ -26,7 +26,10 @@ const updater = AsyncPolling((end) => {
         json: true
     }, (error, response, body) => {
         if (!error && response.statusCode === 200)
-            ref.set(body.RAW);
+        {
+            ref.update(body.RAW);
+            ref.update({timestamp: (new Date()).getTime()});
+        }
     });
     end();
 }, UPDATE_DELAY);
