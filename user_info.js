@@ -18,7 +18,7 @@ if(require.main === module)
         const childRef = ref.child(user.key);
         if(user.child('added').val() === null)
             childRef.child('added').set((new Date()).getTime());
-        if(user.child('askedToSupport').val() === null)
-            childRef.child('askedToSupport').set(false);
+        if(user.child('askedForSupport').val() === null)
+            childRef.child('askedForSupport').set(false);
     }));
 }
