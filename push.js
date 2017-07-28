@@ -10,57 +10,43 @@ admin.initializeApp({
 const db = admin.database();
 const ref = db.ref(admin.databaseURL);
 
-const decreaseText = ['The current value of ',' has fallen ', ' percent.'];
-const increaseText = ['The current value of ',' has increased ', ' percent.'];
+const decreaseText = [' to ', ' down ', '%'];
+const increaseText = [' to ', ' up ', '%'];
 let activeUsers = {};
 
-
-ref.child('users').on('value', (snapshot) =>  {
-    activeUsers = snapshot.val();
-});
+ref.child('users').on('value', snapshot => activeUsers = snapshot.val());
 
 ref.child('conversionData').on('value', (snapshot) => {
     const currencyData = snapshot.val();
     if (Object.keys(activeUsers).length !== 0) {
         for (const id in activeUsers) {
-            const token = activeUsers[id].token;
-            for (const currencies in activeUsers[id].conversions) {
-                const bucket = activeUsers[id].conversions[currencies];
-                const fromCurr = currencies.split(':')[0];
-                const toCurr = currencies.split(':')[1];
+            const user = activeUsers[id];
+            const token = user.token;
+            for (const conversion in user.conversions) {
+                const bucket = user.conversions[conversion];
+                const currencies = conversion.split(':');
+                const fromCurr = currencies[0];
+                const toCurr = currencies[1];
                 const delta = (currencyData[fromCurr][toCurr].CHANGEPCT24HOUR);
-                handlePush(token,bucket,delta,fromCurr);
+                handlePush(token, bucket, delta, fromCurr, toCurr);
             }
         }
     }
-
-}, (errorObject) => {
-    console.log('The read failed: ' + errorObject.code);
-
-});
-
+}, errorObject => console.log('The read failed: ' + errorObject.code));
 
 //helper functions
 
-function handlePush(token, userPref, delta, fromCurr) {
-    console.log(delta.toString().substring(1));
-    if (hasDecreased(delta) && userPref.pushDecreased
-    && delta < userPref.thresholdDecreased ) {
-        delta = Number(delta.toString().substring(1));
-        sendNotification(token,decreaseText[0]
-                        + fromCurr + decreaseText[1]
-                        + userPref.thresholdDecreased + decreaseText[2]);
-
-    } else if (!hasDecreased(delta) && userPref.pushIncreased
-    &&  delta > userPref.thresholdIncreased) {
-        delta = Number(delta.toString().substring(1));
-        sendNotification(token,increaseText[0]
-                        + fromCurr + increaseText[1]
-                        + userPref.thresholdIncreased + increaseText[2]);
+function handlePush(token, userPref, delta, fromCurr, toCurr) {
+    if (delta < 0 && userPref.pushDecreased && -delta > userPref.thresholdDecreased) {
+        sendNotification(token, fromCurr + decreaseText[0] + toCurr + decreaseText[1] + (-delta).toPrecision(4)
+                                + decreaseText[2]);
+    } else if (userPref.pushIncreased && delta > userPref.thresholdIncreased) {
+        sendNotification(token, fromCurr + increaseText[0] + toCurr + increaseText[1] + delta.toPrecision(4)
+                                + increaseText[2]);
     }
 }
 
-function sendNotification(token,messageText){
+function sendNotification(token, messageText) {
 
     const payload = {
         notification: {
@@ -69,17 +55,9 @@ function sendNotification(token,messageText){
         }
     };
     
-    admin.messaging().sendToDevice(token, payload)
-  .then((response) => {
-      console.log('Successfully sent message:', response);
-  })
-  .catch((error) => {
-      console.log('Error sending message:', error);
-  });
+    admin.messaging().sendToDevice(token, payload).then(response =>
+        console.log('Successfully sent message:', response)).catch(error =>
+        console.log('Error sending message:', error));
+    console.log(payload);
 
-}
-
-function hasDecreased(delta) {
-    const temp = delta.toString();
-    return (temp[0] === '-');
 }
