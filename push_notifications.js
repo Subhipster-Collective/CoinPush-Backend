@@ -37,7 +37,7 @@ ref.child('conversionData').on('value', (snapshot) => {
 //helper functions
 
 function handlePush(token, userPref, delta, fromCurr, toCurr) {
-    if (delta < 0 && userPref.pushDecreased && -delta > userPref.thresholdDecreased) {
+    if (userPref.pushDecreased && -delta > userPref.thresholdDecreased) {
         sendNotification(token, fromCurr + decreaseText[0] + toCurr + decreaseText[1] + (-delta).toPrecision(4)
                                 + decreaseText[2]);
     } else if (userPref.pushIncreased && delta > userPref.thresholdIncreased) {
