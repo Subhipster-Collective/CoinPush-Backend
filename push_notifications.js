@@ -29,11 +29,18 @@ ref.child('conversionData').on('value', (snapshot) => {
             const token = user.token;
             for (const conversion in user.conversions) {
                 const preference = user.conversions[conversion];
+                if((new Date()).getTime() - preference.timeLastPushed < MS_PER_DAY) {
+                    return;
+                }
                 const currencies = conversion.split(':');
                 const fromCurr = currencies[0];
                 const toCurr = currencies[1];
                 const delta = (currencyData[fromCurr][toCurr].CHANGEPCT24HOUR);
-                handlePush(token, preference, delta, fromCurr, toCurr, id);
+                if (preference.pushDecreased && -delta > preference.thresholdDecreased) {
+                    formatAndSendNotification(token, decreaseText, conversion, fromCurr, toCurr, -delta, id);
+                } else if (preference.pushIncreased && delta > preference.thresholdIncreased) {
+                    formatAndSendNotification(token, increaseText, conversion, fromCurr, toCurr, delta, id);
+                }
             }
         }
     }
@@ -41,19 +48,11 @@ ref.child('conversionData').on('value', (snapshot) => {
 
 //helper functions
 
-function handlePush(token, userPref, delta, fromCurr, toCurr, id) {
-    if((new Date()).getTime() - userPref.timeLastPushed < MS_PER_DAY) {
-        return;
-    }
-    if (userPref.pushDecreased && -delta > userPref.thresholdDecreased) {
-        sendNotification(token, fromCurr + decreaseText[0] + toCurr + decreaseText[1] + (-delta).toPrecision(4)
-                                + decreaseText[2]);
-        ref.child('users').child(id).child('conversions').child(fromCurr + ':' + toCurr).child('timeLastPushed').set((new Date()).getTime());
-    } else if (userPref.pushIncreased && delta > userPref.thresholdIncreased) {
-        sendNotification(token, fromCurr + increaseText[0] + toCurr + increaseText[1] + delta.toPrecision(4)
-                                + increaseText[2]);
-        ref.child('users').child(id).child('conversions').child(fromCurr + ':' + toCurr).child('timeLastPushed').set((new Date()).getTime());
-    }
+function formatAndSendNotification(token, formatArray, conversion, fromCurr, toCurr, change, id)
+{
+    sendNotification(token, fromCurr + formatArray[0] + toCurr + formatArray[1] + change.toPrecision(4)
+                            + formatArray[2]);
+    ref.child('users').child(id).child('conversions').child(conversion).child('timeLastPushed').set((new Date()).getTime());
 }
 
 function sendNotification(token, messageText) {
@@ -65,11 +64,11 @@ function sendNotification(token, messageText) {
         }
     };
     
-    /*admin.messaging().sendToDevice(token, payload).then(response =>
+    admin.messaging().sendToDevice(token, payload).then(response =>
         console.log('Successfully sent message:', response)).catch(error =>
-        console.log('Error sending message:', error));*/
-    console.log(token);
+        console.log('Error sending message:', error));
+    /*console.log(token);
     console.log(payload);
-    console.log();
+    console.log();*/
 
 }
