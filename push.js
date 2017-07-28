@@ -43,15 +43,16 @@ ref.child('conversionData').on('value', (snapshot) => {
 //helper functions
 
 function handlePush(token, userPref, delta, fromCurr) {
+    console.log(delta.toString().substring(1));
     if (hasDecreased(delta) && userPref.pushDecreased
-    && userPref.thresholdDecreased < delta) {
+    && delta < userPref.thresholdDecreased ) {
         delta = Number(delta.toString().substring(1));
         sendNotification(token,decreaseText[0]
                         + fromCurr + decreaseText[1]
                         + userPref.thresholdDecreased + decreaseText[2]);
 
     } else if (!hasDecreased(delta) && userPref.pushIncreased
-    && userPref.thresholdIncreased > delta) {
+    &&  delta > userPref.thresholdIncreased) {
         delta = Number(delta.toString().substring(1));
         sendNotification(token,increaseText[0]
                         + fromCurr + increaseText[1]
@@ -67,7 +68,7 @@ function sendNotification(token,messageText){
             body: messageText
         }
     };
-    console.log(token);
+    
     admin.messaging().sendToDevice(token, payload)
   .then((response) => {
       console.log('Successfully sent message:', response);
