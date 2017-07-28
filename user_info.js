@@ -16,9 +16,9 @@ if(require.main === module)
 {
     ref.on('value', users => users.forEach((user) => {
         const childRef = ref.child(user.key);
-        if(user.child('added').val() === null)
-            childRef.child('added').set((new Date()).getTime());
-        if(user.child('askedForSupport').val() === null)
-            childRef.child('askedForSupport').set(false);
+        if(user.child('timeAdded').val() === null)
+            childRef.child('timeAdded').set((new Date()).getTime());
+        if(user.child('naggedOn').val() === null)
+            childRef.child('naggedOn').set(0);
     }));
 }
