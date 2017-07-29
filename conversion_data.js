@@ -28,7 +28,7 @@ const URL = 'https://min-api.cryptocompare.com/data/pricemultifull?fsyms=' + CRY
 const admin = require('firebase-admin');
 const serviceAccount = require('./coin-push-firebase-adminsdk-5s3qb-8b77683674.json');
 const request = require('request');
-const AsyncPolling = require('async-polling');
+const asyncPolling = require('async-polling');
 
 admin.initializeApp({
     credential: admin.credential.cert(serviceAccount),
@@ -38,25 +38,22 @@ admin.initializeApp({
 const db = admin.database();
 const ref = db.ref(admin.databaseURL).child('conversionData');
 
-const updater = AsyncPolling((end) => {
+const updater = asyncPolling((end) => {
     request({
         url: URL,
         json: true
     }, (error, response, body) => {
         if (!error && response.statusCode === 200)
         {
-            const raw = body.RAW;
             const data = {};
             for(const currencyFrom of CRYPTOCURRENCIES)
             {
                 data[currencyFrom] = {};
-                const dataFrom = data[currencyFrom];
-                const cryptocompareFrom = raw[currencyFrom];
                 for(const currencyTo of ALL_CURRENCIES)
                 {
-                    dataFrom[currencyTo] = {
-                        PRICE: cryptocompareFrom[currencyTo].PRICE,
-                        CHANGEPCT24HOUR: cryptocompareFrom[currencyTo].CHANGEPCT24HOUR
+                    data[currencyFrom][currencyTo] = {
+                        PRICE: body.RAW[currencyFrom][currencyTo].PRICE,
+                        CHANGEPCT24HOUR: body.RAW[currencyFrom][currencyTo].CHANGEPCT24HOUR
                     };
                 }
             }

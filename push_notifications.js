@@ -21,6 +21,8 @@
  */
 
 const MS_PER_DAY = 86400000;
+const TEXT_DECREASED = [' to ', ' down ', '%'];
+const TEXT_INCREASED = [' to ', ' up ', '%'];
 
 const admin = require('firebase-admin');
 const serviceAccount = require('./coin-push-firebase-adminsdk-5s3qb-8b77683674.json');
@@ -34,8 +36,6 @@ admin.initializeApp({
 const db = admin.database();
 const ref = db.ref(admin.databaseURL);
 
-const decreaseText = [' to ', ' down ', '%'];
-const increaseText = [' to ', ' up ', '%'];
 let activeUsers = {};
 
 ref.child('users').on('value', snapshot => activeUsers = snapshot.val()), errorObject =>
@@ -54,13 +54,13 @@ ref.child('conversionData').on('value', (snapshot) => {
                     return;
                 }
                 const currencies = conversion.split(':');
-                const fromCurr = currencies[0];
-                const toCurr = currencies[1];
-                const delta = (currencyData[fromCurr][toCurr].CHANGEPCT24HOUR);
-                if (preference.pushDecreased && -delta > preference.thresholdDecreased) {
-                    formatAndSendNotification(token, decreaseText, conversion, fromCurr, toCurr, -delta, id);
-                } else if (preference.pushIncreased && delta > preference.thresholdIncreased) {
-                    formatAndSendNotification(token, increaseText, conversion, fromCurr, toCurr, delta, id);
+                const currencyFrom = currencies[0];
+                const currencyTo = currencies[1];
+                const change = (currencyData[currencyFrom][currencyTo].CHANGEPCT24HOUR);
+                if (preference.pushDecreased && (-change) > preference.thresholdDecreased) {
+                    formatAndSendNotification(token, TEXT_DECREASED, conversion, currencyFrom, currencyTo, -change, id);
+                } else if (preference.pushIncreased && change > preference.thresholdIncreased) {
+                    formatAndSendNotification(token, TEXT_INCREASED, conversion, currencyFrom, currencyTo, change, id);
                 }
             }
         }
@@ -69,9 +69,9 @@ ref.child('conversionData').on('value', (snapshot) => {
 
 //helper functions
 
-function formatAndSendNotification(token, formatArray, conversion, fromCurr, toCurr, change, id)
+function formatAndSendNotification(token, formatArray, conversion, currencyFrom, currencyTo, change, id)
 {
-    sendNotification(token, fromCurr + formatArray[0] + toCurr + formatArray[1] + change.toPrecision(4)
+    sendNotification(token, currencyFrom + formatArray[0] + currencyTo + formatArray[1] + change.toPrecision(4)
                             + formatArray[2]);
     ref.child('users').child(id).child('conversions').child(conversion).child('timeLastPushed').set((new Date()).getTime());
 }
