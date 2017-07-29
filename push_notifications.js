@@ -1,6 +1,25 @@
 #!/usr/bin/node
 'use strict';
 
+/*
+ * Copyright 2017 Subhipster Collective
+ *
+ * This file is part of CoinPush-Backend.
+ *
+ * CoinPush-Backend is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * CoinPush-Backend is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with CoinPush-Backend.  If not, see <http://www.gnu.org/licenses/>.
+ */
+
 const MS_PER_DAY = 86400000;
 
 const admin = require('firebase-admin');
@@ -19,17 +38,19 @@ const decreaseText = [' to ', ' down ', '%'];
 const increaseText = [' to ', ' up ', '%'];
 let activeUsers = {};
 
-ref.child('users').on('value', snapshot => activeUsers = snapshot.val());
+ref.child('users').on('value', snapshot => activeUsers = snapshot.val()), errorObject =>
+    console.log('users read failed: ' + errorObject.code);
 
 ref.child('conversionData').on('value', (snapshot) => {
     const currencyData = snapshot.val();
     if (Object.keys(activeUsers).length !== 0) {
+        const now = (new Date()).getTime();
         for (const id in activeUsers) {
             const user = activeUsers[id];
             const token = user.token;
             for (const conversion in user.conversions) {
                 const preference = user.conversions[conversion];
-                if((new Date()).getTime() - preference.timeLastPushed < MS_PER_DAY) {
+                if(now - preference.timeLastPushed < MS_PER_DAY) {
                     return;
                 }
                 const currencies = conversion.split(':');
@@ -44,7 +65,7 @@ ref.child('conversionData').on('value', (snapshot) => {
             }
         }
     }
-}, errorObject => console.log('The read failed: ' + errorObject.code));
+}, errorObject => console.log('conversionData read failed: ' + errorObject.code));
 
 //helper functions
 
