@@ -21,8 +21,8 @@
  */
 
 const MS_PER_DAY = 86400000;
-const TEXT_DECREASED = [' to ', ' down ', '%'];
-const TEXT_INCREASED = [' to ', ' up ', '%'];
+const TEXT_DECREASED = [' to ', ' is down ', '%'];
+const TEXT_INCREASED = [' to ', ' is up ', '%'];
 
 const admin = require('firebase-admin');
 const serviceAccount = require('./coin-push-firebase-adminsdk-5s3qb-8b77683674.json');
@@ -43,25 +43,26 @@ ref.child('users').on('value', snapshot => activeUsers = snapshot.val()), errorO
 
 ref.child('conversionData').on('value', (snapshot) => {
     const currencyData = snapshot.val();
-    if (Object.keys(activeUsers).length !== 0) {
+    if (Object.keys(activeUsers).length !== 0)
+    {
         const now = (new Date()).getTime();
-        for (const id in activeUsers) {
+        for (const id in activeUsers)
+        {
             const user = activeUsers[id];
             const token = user.token;
-            for (const conversion in user.conversions) {
+            for(const conversion in user.conversions)
+            {
                 const preference = user.conversions[conversion];
-                if(now - preference.timeLastPushed < MS_PER_DAY) {
-                    return;
-                }
+                if(now - preference.timeLastPushed < MS_PER_DAY)
+                    continue;
                 const currencies = conversion.split(':');
                 const currencyFrom = currencies[0];
                 const currencyTo = currencies[1];
                 const change = (currencyData[currencyFrom][currencyTo].CHANGEPCT24HOUR);
-                if (preference.pushDecreased && (-change) > preference.thresholdDecreased) {
+                if (preference.pushDecreased && (-change) > preference.thresholdDecreased)
                     formatAndSendNotification(token, TEXT_DECREASED, conversion, currencyFrom, currencyTo, -change, id);
-                } else if (preference.pushIncreased && change > preference.thresholdIncreased) {
+                else if (preference.pushIncreased && change > preference.thresholdIncreased)
                     formatAndSendNotification(token, TEXT_INCREASED, conversion, currencyFrom, currencyTo, change, id);
-                }
             }
         }
     }
@@ -76,8 +77,8 @@ function formatAndSendNotification(token, formatArray, conversion, currencyFrom,
     ref.child('users').child(id).child('conversions').child(conversion).child('timeLastPushed').set((new Date()).getTime());
 }
 
-function sendNotification(token, messageText) {
-
+function sendNotification(token, messageText)
+{
     const payload = {
         notification: {
             title: 'alert',
@@ -91,5 +92,4 @@ function sendNotification(token, messageText) {
     /*console.log(token);
     console.log(payload);
     console.log();*/
-
 }
