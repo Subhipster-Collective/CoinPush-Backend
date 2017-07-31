@@ -50,19 +50,19 @@ ref.child('conversionData').on('value', (snapshot) => {
         {
             const user = activeUsers[id];
             const token = user.token;
-            for(const conversion in user.conversions)
+            for(const conversionStr in user.conversionPrefs)
             {
-                const preference = user.conversions[conversion];
-                if(now - preference.timeLastPushed < MS_PER_DAY)
+                const preference = user.conversionPrefs[conversionStr];
+                if(now - user.timeLastPushed[conversionStr] < MS_PER_DAY)
                     continue;
-                const currencies = conversion.split(':');
+                const currencies = conversionStr.split(':');
                 const currencyFrom = currencies[0];
                 const currencyTo = currencies[1];
                 const change = (currencyData[currencyFrom][currencyTo].CHANGEPCT24HOUR);
                 if (preference.pushDecreased && (-change) > preference.thresholdDecreased)
-                    formatAndSendNotification(token, TEXT_DECREASED, conversion, currencyFrom, currencyTo, -change, id);
+                    formatAndSendNotification(token, TEXT_DECREASED, conversionStr, currencyFrom, currencyTo, -change, id);
                 else if (preference.pushIncreased && change > preference.thresholdIncreased)
-                    formatAndSendNotification(token, TEXT_INCREASED, conversion, currencyFrom, currencyTo, change, id);
+                    formatAndSendNotification(token, TEXT_INCREASED, conversionStr, currencyFrom, currencyTo, change, id);
             }
         }
     }
@@ -74,7 +74,7 @@ function formatAndSendNotification(token, formatArray, conversion, currencyFrom,
 {
     sendNotification(token, currencyFrom + formatArray[0] + currencyTo + formatArray[1] + change.toPrecision(4)
                             + formatArray[2]);
-    ref.child('users').child(id).child('conversions').child(conversion).child('timeLastPushed').set((new Date()).getTime());
+    ref.child('users').child(id).child('timeLastPushed').child(conversion).set((new Date()).getTime());
 }
 
 function sendNotification(token, messageText)
