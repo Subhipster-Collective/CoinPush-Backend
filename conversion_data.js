@@ -21,7 +21,7 @@
  */
 
 const UPDATE_DELAY = 10000;
-const CRYPTOCURRENCIES = ['ETH', 'BTC', 'LTC', 'DASH', 'XMR', 'NXT', 'ZEC', 'DGB', 'XRP', 'ETC'];
+const CRYPTOCURRENCIES = ['ETH', 'BTC', 'LTC', 'DASH', 'XMR', 'NXT', 'ZEC', 'DGB', 'XRP', 'BCH', 'ETC'];
 const ALL_CURRENCIES = CRYPTOCURRENCIES.concat(['USD', 'EUR', 'GBP', 'JPY', 'CNY', 'AUD', 'CAD', 'CHF']);
 const URL = 'https://min-api.cryptocompare.com/data/pricemultifull?fsyms=' + CRYPTOCURRENCIES + '&tsyms=' + ALL_CURRENCIES;
 
@@ -51,10 +51,22 @@ const updater = asyncPolling((end) => {
                 data[currencyFrom] = {};
                 for(const currencyTo of ALL_CURRENCIES)
                 {
-                    data[currencyFrom][currencyTo] = {
-                        PRICE: body.RAW[currencyFrom][currencyTo].PRICE,
-                        CHANGEPCT24HOUR: body.RAW[currencyFrom][currencyTo].CHANGEPCT24HOUR
-                    };
+                    try
+                    {
+                        data[currencyFrom][currencyTo] = {
+                            PRICE: body.RAW[currencyFrom][currencyTo].PRICE,
+                            CHANGEPCT24HOUR: body.RAW[currencyFrom][currencyTo].CHANGEPCT24HOUR
+                        };
+                    }
+                    catch(err)
+                    {
+                        console.log('body: ');
+                        console.log(body);
+                        console.log('response: ');
+                        console.log(response);
+                        console.log('error: ');
+                        console.log(error);
+                    }
                 }
             }
             ref.update(data);
