@@ -21,7 +21,7 @@
  */
 
 const UPDATE_DELAY = 10000;
-const CRYPTOCURRENCIES = ['ETH', 'BTC', 'LTC', 'DASH', 'XMR', 'NXT', 'ZEC', 'DGB', 'XRP', 'BCH', 'ETC'];
+const CRYPTOCURRENCIES = ['ETH', 'BTC', 'LTC', 'DASH', 'XMR', 'NXT', 'ZEC', 'DGB', 'XRP', 'BCH', 'ETC', 'DOGE'];
 const ALL_CURRENCIES = CRYPTOCURRENCIES.concat(['USD', 'EUR', 'GBP', 'JPY', 'CNY', 'AUD', 'CAD', 'CHF']);
 const URL = 'https://min-api.cryptocompare.com/data/pricemultifull?fsyms=' + CRYPTOCURRENCIES + '&tsyms=' + ALL_CURRENCIES;
 
