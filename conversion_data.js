@@ -2,7 +2,7 @@
 'use strict';
 
 /*
- * Copyright 2017 Subhipster Collective
+ * Copyright 2017  Subhipster Collective
  *
  * This file is part of CoinPush-Backend.
  *
