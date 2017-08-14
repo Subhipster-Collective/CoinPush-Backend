@@ -44,6 +44,6 @@ if(require.main === module)
         users.child(user.key).child('conversions').forEach((conversion) => {
             if(conversion.child('timeLastPushed').val() === null)
                 conversionsRef.child(conversion.key).child('timeLastPushed').set(0);
-        })
+        });
     }));
 }
