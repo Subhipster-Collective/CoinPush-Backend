@@ -23,7 +23,7 @@
 const UPDATE_DELAY = 10000;
 const CRYPTOCURRENCIES = ['ETH', 'BTC', 'LTC', 'DASH', 'XMR', 'NXT', 'ZEC', 'DGB', 'XRP', 'BCH', 'ETC', 'DOGE','DNT','ZRX','OMG'];
 const ALL_CURRENCIES = CRYPTOCURRENCIES.concat(['USD', 'EUR', 'GBP', 'JPY', 'CNY', 'AUD', 'CAD', 'CHF']);
-const URL = 'https://min-api.cryptocompare.com/data/pricemultifull?fsyms=' + CRYPTOCURRENCIES + '&tsyms=' + ALL_CURRENCIES;
+const URL = `https://min-api.cryptocompare.com/data/pricemultifull?fsyms=${CRYPTOCURRENCIES}&tsyms=${ALL_CURRENCIES}`;
 
 const admin = require('firebase-admin');
 const serviceAccount = require('./coin-push-firebase-adminsdk-5s3qb-8b77683674.json');

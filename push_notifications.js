@@ -58,11 +58,24 @@ ref.child('conversionData').on('value', (snapshot) => {
                 const currencies = conversionStr.split(':');
                 const currencyFrom = currencies[0];
                 const currencyTo = currencies[1];
-                const change = (currencyData[currencyFrom][currencyTo].CHANGEPCT24HOUR);
-                if (preference.pushDecreased && (-change) > preference.thresholdDecreased)
-                    formatAndSendNotification(token, TEXT_DECREASED, conversionStr, currencyFrom, currencyTo, -change, id);
-                else if (preference.pushIncreased && change > preference.thresholdIncreased)
-                    formatAndSendNotification(token, TEXT_INCREASED, conversionStr, currencyFrom, currencyTo, change, id);
+                try
+                {
+                    const change = (currencyData[currencyFrom][currencyTo].CHANGEPCT24HOUR);
+                    if (preference.pushDecreased && (-change) > preference.thresholdDecreased)
+                        formatAndSendNotification(token, TEXT_DECREASED, conversionStr, currencyFrom, currencyTo, -change, id);
+                    else if (preference.pushIncreased && change > preference.thresholdIncreased)
+                        formatAndSendNotification(token, TEXT_INCREASED, conversionStr, currencyFrom, currencyTo, change, id);
+                }
+                catch(err)
+                {
+                    console.log(err);
+                    console.log(`date: ${(new Date()).toString()}`);
+                    console.log(`id: ${id}`);
+                    console.log(`currencyData: ${currencyData}`);
+                    console.log(`currencyFrom: ${currencyFrom}`);
+                    console.log(`currencyData[${currencyFrom}]: ${currencyData[currencyFrom]}]`);
+                    console.log(`currencyTo: ${currencyTo}`);
+                }
             }
         }
     }
