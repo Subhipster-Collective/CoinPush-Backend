@@ -52,7 +52,7 @@ ref.child('conversionData').on('value', (snapshot) => {
             const token = user.token;
             for(const conversionStr in user.conversionPrefs)
             {
-                if(user.timeLastPushed[conversionStr] !== null && now - user.timeLastPushed[conversionStr] < MS_PER_DAY)
+                if('timeLastPushed' in user && conversionStr in user.timeLastPushed && now - user.timeLastPushed[conversionStr] < MS_PER_DAY)
                     continue;
                 const preference = user.conversionPrefs[conversionStr];
                 const currencies = conversionStr.split(':');
