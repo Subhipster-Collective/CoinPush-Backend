@@ -41,9 +41,9 @@ if(require.main === module)
             childRef.child('timeAdded').set((new Date()).getTime());
         if(user.child('naggedOn').val() === null)
             childRef.child('naggedOn').set(0);
-        users.child(user.key).child('conversions').forEach((conversion) => {
+        /*users.child(user.key).child('conversions').forEach((conversion) => {
             if(conversion.child('timeLastPushed').val() === null)
                 conversionsRef.child(conversion.key).child('timeLastPushed').set(0);
-        });
+        });*/
     }));
 }

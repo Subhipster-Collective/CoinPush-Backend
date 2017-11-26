@@ -43,7 +43,7 @@ ref.child('users').on('value', snapshot => activeUsers = snapshot.val()), errorO
 
 ref.child('conversionData').on('value', (snapshot) => {
     const currencyData = snapshot.val();
-    if (Object.keys(activeUsers).length !== 0)
+    if (Object.keys(activeUsers).length !== 0) // Crashes instead of evaluating false. activeUsers won't exist if its length is zero
     {
         const now = (new Date()).getTime();
         for (const id in activeUsers)
