@@ -20,15 +20,14 @@
  * along with CoinPush-Backend.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-const UPDATE_DELAY = 10000;
-const CRYPTOCURRENCIES = ['ETH', 'BTC', 'LTC', 'DASH', 'XMR', 'NXT', 'ZEC', 'DGB', 'XRP', 'BCH', 'ETC', 'DOGE', 'DNT', 'ZRX', 'OMG'];
-const ALL_CURRENCIES = CRYPTOCURRENCIES.concat(['USD', 'EUR', 'GBP', 'JPY', 'CNY', 'AUD', 'CAD', 'CHF']);
-const URL = `https://min-api.cryptocompare.com/data/pricemultifull?fsyms=${CRYPTOCURRENCIES}&tsyms=${ALL_CURRENCIES}`;
-
 const admin = require('firebase-admin');
 const serviceAccount = require('./coin-push-firebase-adminsdk-5s3qb-8b77683674.json');
 const request = require('request');
 const asyncPolling = require('async-polling');
+const currencies = require('./currencies.js');
+
+const UPDATE_DELAY = 15000;
+const URL = `https://min-api.cryptocompare.com/data/pricemultifull?fsyms=${parser.CRYPTOCURRENCIES}&tsyms=${parser.ALL_CURRENCIES}`;
 
 admin.initializeApp({
     credential: admin.credential.cert(serviceAccount),
@@ -36,7 +35,8 @@ admin.initializeApp({
 });
 
 const db = admin.database();
-const ref = db.ref(admin.databaseURL).child('conversionData');
+const ref = db.ref(admin.databaseURL).child('conversionData').child('latest');
+const refDeprecated = db.ref(admin.databaseURL).child('conversionData');
 
 const updater = asyncPolling((end) => {
     request({
@@ -46,10 +46,10 @@ const updater = asyncPolling((end) => {
         if (!error && response.statusCode === 200)
         {
             const data = {};
-            for(const currencyFrom of CRYPTOCURRENCIES)
+            for(const currencyFrom of currencies.CRYPTOCURRENCIES)
             {
                 data[currencyFrom] = {};
-                for(const currencyTo of ALL_CURRENCIES)
+                for(const currencyTo of currencies.ALL_CURRENCIES)
                 {
                     try
                     {
@@ -60,17 +60,20 @@ const updater = asyncPolling((end) => {
                     }
                     catch(err)
                     {
-                        console.log('body: ');
-                        console.log(body);
-                        console.log('response: ');
-                        console.log(response);
-                        console.log('error: ');
-                        console.log(error);
+                        console.error('body: ');
+                        console.error(body);
+                        console.error('response: ');
+                        console.error(response);
+                        console.error('error: ');
+                        console.error(error);
                     }
                 }
             }
+            
             ref.update(data);
             ref.update({timestamp: (new Date()).getTime()});
+            refDeprecated.update(data);
+            refDeprecated.update({timestamp: (new Date()).getTime()});
         }
     });
     end();
