@@ -27,7 +27,7 @@ const asyncPolling = require('async-polling');
 const currencies = require('./currencies.js');
 
 const UPDATE_DELAY = 15000;
-const URL = `https://min-api.cryptocompare.com/data/pricemultifull?fsyms=${parser.CRYPTOCURRENCIES}&tsyms=${parser.ALL_CURRENCIES}`;
+const URL = `https://min-api.cryptocompare.com/data/pricemultifull?fsyms=${currencies.CRYPTOCURRENCIES}&tsyms=${currencies.ALL_CURRENCIES}`;
 
 admin.initializeApp({
     credential: admin.credential.cert(serviceAccount),

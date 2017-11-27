@@ -26,6 +26,8 @@ const request = require('request');
 const currencies = require('./currencies.js');
 
 const SECS_PER_DAY = 86400;
+const MAX_CURRENCIES_TO = 7;
+const PAUSE_TIME = 120;
 
 /*function copyChild(refOld, refNew)
 {
@@ -52,25 +54,32 @@ async function pushData(time, dayRef)
     for(const currencyFrom of currencies.CRYPTOCURRENCIES)
     {
         data[currencyFrom] = {};
-        for(const currencyTo of currencies.ALL_CURRENCIES)
+        let currencyTos = [];
+        for(let i = 0; i < currencies.ALL_CURRENCIES.length; ++i)
         {
-            getConversion(currencyFrom, currencyTo, time, data);
-            await new Promise(resolve => setTimeout(resolve, 150));
+            currencyTos.push(currencies.ALL_CURRENCIES[i]);
+            if(i % MAX_CURRENCIES_TO === MAX_CURRENCIES_TO - 1 || i === currencies.ALL_CURRENCIES.length - 1)
+            {
+                getConversion(currencyFrom, currencyTos, time, data);
+                currencyTos = [];
+                await new Promise(resolve => setTimeout(resolve, PAUSE_TIME));
+            }
         }
     }
     dayRef.update(data);
     dayRef.update({timestamp: time * 1000});
 }
 
-function getConversion(currencyFrom, currencyTo, time, data)
+function getConversion(currencyFrom, currencyTos, time, data)
 {
-    const URL = `https://min-api.cryptocompare.com/data/pricehistorical?fsym=${currencyFrom}&tsyms=${currencyTo}&ts=${time}`;
+    const URL = `https://min-api.cryptocompare.com/data/pricehistorical?fsym=${currencyFrom}&tsyms=${currencyTos}&ts=${time}`;
     request({
         url: URL,
         json: true
     }, (error, response, body) => {
         if (!error && response.statusCode === 200)
-            data[currencyFrom][currencyTo] = { PRICE: (currencyFrom === currencyTo) ? 1 : body[currencyFrom][currencyTo] };
+            for(const currencyTo of currencyTos)
+                data[currencyFrom][currencyTo] = { PRICE: (currencyFrom === currencyTo) ? 1 : body[currencyFrom][currencyTo] };
     });
 }
 
