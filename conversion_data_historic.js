@@ -29,7 +29,7 @@ const SECS_PER_DAY = 86400;
 const MAX_CURRENCIES_TO = 7;
 const PAUSE_TIME = 120;
 
-/*function copyChild(refOld, refNew)
+function copyChild(refOld, refNew)
 {
     refOld.once('value', (snapshot) => {
         refNew.set(snapshot.val(), (error) => {
@@ -37,7 +37,7 @@ const PAUSE_TIME = 120;
                 console.error(error);
         });
     });
-}*/
+}
 
 admin.initializeApp({
     credential: admin.credential.cert(serviceAccount),
@@ -85,13 +85,26 @@ function getConversion(currencyFrom, currencyTos, time, data)
 
 async function main()
 {
-    await pushData(now -   SECS_PER_DAY, ref.child('day1'));
-    await pushData(now - 2*SECS_PER_DAY, ref.child('day2'));
-    await pushData(now - 3*SECS_PER_DAY, ref.child('day3'));
-    await pushData(now - 4*SECS_PER_DAY, ref.child('day4'));
-    await pushData(now - 5*SECS_PER_DAY, ref.child('day5'));
-    await pushData(now - 6*SECS_PER_DAY, ref.child('day6'));
-    await pushData(now - 7*SECS_PER_DAY, ref.child('day7'));
+    await pushData(now -    SECS_PER_DAY, ref.child('day1'));
+    await pushData(now -  2*SECS_PER_DAY, ref.child('day2'));
+    await pushData(now -  3*SECS_PER_DAY, ref.child('day3'));
+    await pushData(now -  4*SECS_PER_DAY, ref.child('day4'));
+    await pushData(now -  5*SECS_PER_DAY, ref.child('day5'));
+    await pushData(now -  6*SECS_PER_DAY, ref.child('day6'));
+    await pushData(now -  7*SECS_PER_DAY, ref.child('day7'));
+    
+    copyChild(ref.child('day7'), ref.child('week1'));
+    await pushData(now - 14*SECS_PER_DAY, ref.child('week2'));
+    await pushData(now - 21*SECS_PER_DAY, ref.child('week3'));
+    await pushData(now - 28*SECS_PER_DAY, ref.child('week4'));
+    await pushData(now - 35*SECS_PER_DAY, ref.child('week5'));
+    await pushData(now - 42*SECS_PER_DAY, ref.child('week6'));
+    await pushData(now - 49*SECS_PER_DAY, ref.child('week7'));
+    await pushData(now - 56*SECS_PER_DAY, ref.child('week8'));
+    await pushData(now - 63*SECS_PER_DAY, ref.child('week9'));
+    await pushData(now - 70*SECS_PER_DAY, ref.child('week10'));
+    await pushData(now - 77*SECS_PER_DAY, ref.child('week11'));
+    await pushData(now - 84*SECS_PER_DAY, ref.child('week12'));
     
     admin.app().delete();
 }
